@@ -4,6 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+// MSI Executable data location offsets, tested files:
+// 0x1A3090: E7721V24.exe, E7721VB6.exe
+// 0x1A30A8: E7740V23.exe, E7680vC3.exe
+// 0x1A30B4: E7695V30.exe, E7696V20.exe
+const unsigned int MSI_Location_Offset[3] = { 0x1A3090, 0x1A30A8, 0x1A30B4 };
+
 // Entry point of the program
 int main(int Count, char** Arguments)
 {
@@ -58,7 +64,18 @@ int main(int Count, char** Arguments)
 				}
 				else
 				{
-					printf("Unknown format detected!\n");
+					for(unsigned int Index = 0; Index < 3; Index++)
+					{
+						const unsigned int Start = *(unsigned int*)(&Input_Buffer[MSI_Location_Offset[Index]]);
+						const unsigned int Length = Full_Size - Start;
+						
+						if(Length % 1048576 == 0)
+						{
+							Offset = Start;
+							printf("Extracting MSI executable...\n");
+							break;
+						}
+					}
 				}
 				
 				// Check if an offset was found
@@ -72,6 +89,10 @@ int main(int Count, char** Arguments)
 					
 					// Close the output file
 					fclose(Output_Handle);
+				}
+				else
+				{
+					printf("Unknown format detected!\n");
 				}
 				
 				// Free the input file buffer
