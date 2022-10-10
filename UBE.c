@@ -4,11 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-// MSI Executable data location offsets, tested files:
-// 0x1A3090: E7721V24.exe, E7721VB6.exe
-// 0x1A30A8: E7740V23.exe, E7680vC3.exe
-// 0x1A30B4: E7695V30.exe, E7696V20.exe
-const unsigned int MSI_Location_Offset[3] = { 0x1A3090, 0x1A30A8, 0x1A30B4 };
+// Common flash chip storage sizes
+const unsigned int Flash_Size[10] = { 67108864, 33554432, 16777216, 8388608, 4194304, 2097152, 1048576, 524288, 262144, 131072 };
+#define Flash_Size_Count (sizeof(Flash_Size) / sizeof(unsigned int))
 
 // Entry point of the program
 int main(int Count, char** Arguments)
@@ -64,16 +62,17 @@ int main(int Count, char** Arguments)
 				}
 				else
 				{
-					for(unsigned int Index = 0; Index < 3; Index++)
+					for(unsigned int Index = 0; Index < Flash_Size_Count; Index++)
 					{
-						const unsigned int Start = *(unsigned int*)(&Input_Buffer[MSI_Location_Offset[Index]]);
-						const unsigned int Length = Full_Size - Start;
-						
-						if(Length % 1048576 == 0)
+						if(Full_Size > Flash_Size[Index])
 						{
-							Offset = Start;
-							printf("Extracting MSI executable...\n");
+							printf("Extracting appended data...\n");
+							Offset = Full_Size - Flash_Size[Index];
 							break;
+						}
+						else
+						{
+							continue;
 						}
 					}
 				}

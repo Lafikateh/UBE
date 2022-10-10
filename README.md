@@ -4,4 +4,4 @@ Universal BIOS extractor
 ## Supported formats:
 - ASUS Capsule
 - ASROCK Capsule
-- MSI Executable
+- Appended executable(MSI and other vendors)
